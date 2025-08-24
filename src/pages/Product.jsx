@@ -20,6 +20,7 @@ import {
   Chip,
   IconButton
 } from '@mui/material';
+import { safeExtractData } from '../utils/apiHelpers';
 
 import { RemoveCircle } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
@@ -81,13 +82,16 @@ const ProductsPage = () => {
 
   const fetchMedicines = async () => {
     try {
-      const response = await API.get('/medicines/dashboard');
-      setMedicines(response.data);
+      const response = await API.get('/medicines/public');
+      // Use utility function to safely extract data
+      const medicinesData = safeExtractData(response, 'data');
+      setMedicines(medicinesData);
     } catch (error) {
       console.error('Error fetching medicines:', error);
       setSnackbarMessage('Failed to fetch medicines');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
+      setMedicines([]); // Ensure medicines is always an array
     }
   };
 
@@ -284,7 +288,7 @@ const ProductsPage = () => {
       </Button>
       
       <Grid container spacing={3}>
-        {medicines.map((medicine) => (
+        {Array.isArray(medicines) && medicines.map((medicine) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={medicine._id}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               {medicine.images && medicine.images.length > 0 && (

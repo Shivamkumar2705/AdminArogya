@@ -6,6 +6,7 @@ import AddMedicineModal from '../../components/AddMedicineModal';
 import MedicineCard from '../../components/MedicineCard';
 import EditMedicineModal from '../../components/EditMedicineModal';
 import BulkUploadModal from '../../components/BulkUploadModal';
+import { safeExtractData } from '../../utils/apiHelpers';
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
@@ -22,11 +23,14 @@ const AllProducts = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/medicines/dashboard');
-      setProducts(res.data);
+      const res = await API.get('/medicines/public');
+      // Use utility function to safely extract data
+      const productsData = safeExtractData(res, 'data');
+      setProducts(productsData);
     } catch (err) {
       console.error('Error fetching products:', err);
       toast.error('Failed to load products');
+      setProducts([]); // Ensure products is always an array
     } finally {
       setLoading(false);
     }
@@ -34,6 +38,12 @@ const AllProducts = () => {
 
   // Filter and sort products based on search term and sort criteria
   useEffect(() => {
+    // Ensure products is always an array
+    if (!Array.isArray(products)) {
+      setFilteredProducts([]);
+      return;
+    }
+    
     let result = [...products];
     
     // Apply search filter
@@ -215,7 +225,7 @@ const AllProducts = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
           {viewMode === 'grid' ? (
             <div className="p-6">
-              {filteredProducts.length > 0 ? (
+              {Array.isArray(filteredProducts) && filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredProducts.map((product) => (
                     <MedicineCard
@@ -297,7 +307,7 @@ const AllProducts = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredProducts.length > 0 ? (
+                  {Array.isArray(filteredProducts) && filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => {
                       const productName = product.name || product.productName || 'Unnamed Product';
                       const manufacturer = product.manufacturer || 'Unknown Manufacturer';

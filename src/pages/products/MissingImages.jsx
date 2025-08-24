@@ -1,14 +1,19 @@
  import React, { useEffect, useState } from 'react';
 import API from '../../services/api';
+import { safeExtractData } from '../../utils/apiHelpers';
 
 const fetchMedicinesWithoutImages = async () => {
   const res = await API.get('/medicines/no-images');
-  return res.data;
+  // Use utility function to safely extract data
+  const medicinesData = safeExtractData(res, 'data');
+  return medicinesData;
 };
 
 const fetchSuggestedImage = async (productName, id) => {
   const res = await API.get(`/medicines/suggest-image?name=${encodeURIComponent(productName)}&id=${id}`);
-  return res.data.imageUrl;
+  // Use utility function to safely extract data
+  const data = safeExtractData(res, 'data');
+  return data?.imageUrl || null;
 };
 
 const approveImage = async (medicineId, imageUrl) => {

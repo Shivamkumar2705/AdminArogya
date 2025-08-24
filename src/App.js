@@ -18,6 +18,7 @@ import Categories from './pages/products/Categories';
 import Inventory from './pages/products/Inventory';
 import MissingImages from './pages/products/MissingImages';
 import AIProductEnhancement from './pages/products/AIProductEnhancement';
+import InventoryPage from './pages/inventory/InventoryPage';
 
 // Lab Tests
 import LabTests from './pages/LabTests';
@@ -73,6 +74,7 @@ function App() {
               <Route path="all" element={<AllProducts />} />
               <Route path="categories" element={<Categories />} />
               <Route path="inventory" element={<Inventory />} />
+              <Route path="inventory/updates" element={<InventoryPage />} />
               <Route path="missing-images" element={<MissingImages />} />
               <Route path="ai-enhance" element={<AIProductEnhancement />} />
             </Route>

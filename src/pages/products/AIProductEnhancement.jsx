@@ -4,6 +4,7 @@ import { FaMagic, FaCheck, FaTimes, FaSpinner, FaSearch, FaArrowLeft } from 'rea
 import { toast } from 'react-toastify';
 import API from '../../services/api';
 import MedicineCard from '../../components/MedicineCard';
+import { safeExtractData } from '../../utils/apiHelpers';
 
 const AIProductEnhancement = () => {
   const [products, setProducts] = useState([]);
@@ -23,12 +24,16 @@ const AIProductEnhancement = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/medicines/dashboard');
-      setProducts(res.data);
-      setFilteredProducts(res.data);
+      const res = await API.get('/medicines/public');
+      // Use utility function to safely extract data
+      const productsData = safeExtractData(res, 'data');
+      setProducts(productsData);
+      setFilteredProducts(productsData);
     } catch (err) {
       console.error('Error fetching products:', err);
       toast.error('Failed to load products');
+      setProducts([]); // Ensure products is always an array
+      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
@@ -37,10 +42,9 @@ const AIProductEnhancement = () => {
   // Get available fields for autofill
   const fetchAvailableFields = async () => {
     try {
-      const res = await API.get('/ai/options');
-      // Make sure we're getting an array of fields
-      const fields = Array.isArray(res.data) ? res.data : 
-                  (res.data && Array.isArray(res.data.data) ? res.data.data : []);
+      const res = await API.get('/ai-autofill/options');
+      // Use utility function to safely extract data
+      const fields = safeExtractData(res, 'data');
       setSuggestedFields(fields);
     } catch (err) {
       console.error('Error fetching fields:', err);
@@ -51,6 +55,12 @@ const AIProductEnhancement = () => {
 
   // Handle search
   useEffect(() => {
+    // Ensure products is always an array
+    if (!Array.isArray(products)) {
+      setFilteredProducts([]);
+      return;
+    }
+    
     if (searchTerm.trim() === '') {
       setFilteredProducts(products);
       return;
@@ -272,7 +282,7 @@ const AIProductEnhancement = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
+            {Array.isArray(filteredProducts) && filteredProducts.map((product) => (
               <div 
                 key={product._id} 
                 className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
@@ -308,7 +318,7 @@ const AIProductEnhancement = () => {
               </div>
             ))}
             
-            {filteredProducts.length === 0 && (
+            {Array.isArray(filteredProducts) && filteredProducts.length === 0 && (
               <div className="col-span-full text-center py-12 text-gray-500">
                 No products found. Try adjusting your search.
               </div>

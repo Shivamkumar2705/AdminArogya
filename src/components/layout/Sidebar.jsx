@@ -51,6 +51,7 @@ const Sidebar = ({ isMobileMenuOpen, toggleMobileMenu }) => {
         { path: '/medicines/all', label: 'All Products' },
         { path: '/medicines/categories', label: 'Categories' },
         { path: '/medicines/inventory', label: 'Inventory' },
+        { path: '/medicines/inventory/updates', label: 'Inventory Updates' },
         { path: '/medicines/missing-images', label: 'Missing Images' },
         { path: '/medicines/ai-enhance', label: 'AI Product Enhancement', icon: <FaMagic className="mr-2" /> }
       ]

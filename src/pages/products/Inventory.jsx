@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaSearch, FaBoxOpen, FaBox, FaExclamationTriangle, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import API from '../../services/api';
+import { safeExtractData } from '../../utils/apiHelpers';
 
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
@@ -13,11 +14,14 @@ const Inventory = () => {
   const fetchInventory = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/inventory');
-      setInventory(res.data);
+      const res = await API.get('/inventory/products');
+      // Use utility function to safely extract data
+      const inventoryData = safeExtractData(res, 'data');
+      setInventory(inventoryData);
     } catch (err) {
       console.error('Error fetching inventory:', err);
       toast.error('Failed to load inventory data');
+      setInventory([]); // Ensure inventory is always an array
     } finally {
       setLoading(false);
       setRefreshing(false);

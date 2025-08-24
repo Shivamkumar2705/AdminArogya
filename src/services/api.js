@@ -31,6 +31,10 @@ API.interceptors.response.use(
       localStorage.removeItem('adminToken');
       window.location.href = '/login';
     }
+    
+    // Log the error for debugging
+    console.error('API Error:', error);
+    
     return Promise.reject(error);
   }
 );

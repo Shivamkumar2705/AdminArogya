@@ -3,6 +3,7 @@ import API from '../services/api';
 import MedicineCard from '../components/MedicineCard';
 import AddMedicineModal from '../components/AddMedicineModal';
 import EditMedicineModal from '../components/EditMedicineModal';
+import { safeExtractData } from '../utils/apiHelpers';
 
 const MedicineList = () => {
   const [medicines, setMedicines] = useState([]);
@@ -13,10 +14,13 @@ const MedicineList = () => {
   const fetchMedicines = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/medicines/dashboard');
-      setMedicines(res.data);
+      const res = await API.get('/medicines/public');
+      // Use utility function to safely extract data
+      const medicinesData = safeExtractData(res, 'data');
+      setMedicines(medicinesData);
     } catch (err) {
       console.error('Error fetching medicines:', err);
+      setMedicines([]); // Ensure medicines is always an array
     } finally {
       setLoading(false);
     }
@@ -67,7 +71,7 @@ const MedicineList = () => {
         <div className="text-center">Loading...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {medicines.map((medicine) => (
+          {Array.isArray(medicines) && medicines.map((medicine) => (
             <MedicineCard
               key={medicine._id}
               medicine={medicine}
